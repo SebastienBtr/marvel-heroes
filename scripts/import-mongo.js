@@ -29,10 +29,10 @@ function importData(client) {
         backgroundImageUrl: data.backgroundImageUrl,
         externalLink: data.externalLink,
         description: data.description,
-        teams: data.teams,
-        powers: data.powers,
-        partners: data.partners,
-        creators: data.creators,
+        teams: data.teams.split(','),
+        powers: data.powers.split(','),
+        partners: data.partners.split(','),
+        creators: data.creators.split(','),
         appearance: {
           gender: data.gender,
           type: data.type,
@@ -43,10 +43,10 @@ function importData(client) {
           hairColor: data.hairColor
         },
         identity: {
-          secretIdentities: data.secretIdentities,
+          secretIdentities: data.secretIdentities.split(','),
           birthPlace: data.birthPlace,
           occupation: data.occupation,
-          aliases: data.aliases,
+          aliases: data.aliases.split(','),
           alignment: data.alignment,
           firstAppearance: data.firstAppearance,
           yearAppearance: data.yearAppearance,
