@@ -31,6 +31,8 @@ function importData() {
         'secretIdentities': data.secretIdentities,
         'aliases': data.aliases,
         'partners': data.partners,
+        'universe': data.universe,
+        'gender': data.gender
       });
     })
     .on('end', () => {
