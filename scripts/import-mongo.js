@@ -29,10 +29,10 @@ function importData(client) {
         backgroundImageUrl: data.backgroundImageUrl,
         externalLink: data.externalLink,
         description: data.description,
-        teams: data.teams.split(','),
-        powers: data.powers.split(','),
-        partners: data.partners.split(','),
-        creators: data.creators.split(','),
+        teams: createList(data, 'teams'),
+        powers: createList(data, 'powers'),
+        partners: createList(data, 'partners'),
+        creators: createList(data, 'creators'),
         appearance: {
           gender: data.gender,
           type: data.type,
@@ -43,10 +43,10 @@ function importData(client) {
           hairColor: data.hairColor
         },
         identity: {
-          secretIdentities: data.secretIdentities.split(','),
+          secretIdentities: createList(data, 'secretIdentities'),
           birthPlace: data.birthPlace,
           occupation: data.occupation,
-          aliases: data.aliases.split(','),
+          aliases: createList(data, 'aliases'),
           alignment: data.alignment,
           firstAppearance: data.firstAppearance,
           yearAppearance: data.yearAppearance,
@@ -71,6 +71,10 @@ function importData(client) {
         console.trace(err);
       });
     });
+}
+
+function createList(data, key) {
+  return data[key].length ? data[key].split(',') : [];
 }
 
 // Send the data to mongo db
