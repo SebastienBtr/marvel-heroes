@@ -7,14 +7,11 @@ import models.PaginatedResults;
 import models.SearchedHero;
 import play.libs.Json;
 import play.libs.ws.WSClient;
-import utils.SearchedHeroSamples;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Singleton
@@ -45,7 +42,6 @@ public class ElasticRepository {
                          "}" +
                      "}"))
                  .thenApply(response -> {
-                     System.out.println(response.asJson());
                      JsonNode resjson = response.asJson();
                      int total = resjson.get("hits").get("total").get("value").asInt();
                      JsonNode resHeroes = resjson.get("hits").get("hits");
