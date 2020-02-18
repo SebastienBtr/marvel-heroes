@@ -28,10 +28,11 @@ public class MongoDBRepository {
 
 
     public CompletionStage<Optional<Hero>> heroById(String heroId) {
-        String query = "{ \"id\": ObjectId(\"" + heroId + "\") }";
-        Document document = Document.parse(query);
-        return ReactiveStreamsUtils.fromSinglePublisher(heroesCollection.find(document).first())
-                .thenApply(result -> Optional.ofNullable(result).map(Document::toJson).map(Hero::fromJson));
+        return HeroSamples.staticHero(heroId);
+        //String query = "{ \"id\": ObjectId(\"" + heroId + "\") }";
+        //Document document = Document.parse(query);
+        //return ReactiveStreamsUtils.fromSinglePublisher(heroesCollection.find(document).first())
+        //        .thenApply(result -> Optional.ofNullable(result).map(Document::toJson).map(Hero::fromJson));
     }
 
     public CompletionStage<List<YearAndUniverseStat>> countByYearAndUniverse() {

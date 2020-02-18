@@ -1,14 +1,17 @@
 package repository;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import env.ElasticConfiguration;
 import env.MarvelHeroesConfiguration;
 import models.PaginatedResults;
 import models.SearchedHero;
+import play.libs.Json;
 import play.libs.ws.WSClient;
 import utils.SearchedHeroSamples;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -28,22 +31,75 @@ public class ElasticRepository {
 
 
     public CompletionStage<PaginatedResults<SearchedHero>> searchHeroes(String input, int size, int page) {
-        return CompletableFuture.completedFuture(new PaginatedResults<>(3, 1, 1, Arrays.asList(SearchedHeroSamples.IronMan(), SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan())));
-        // TODO
-        // return wsClient.url(elasticConfiguration.uri + "...")
-        //         .post(Json.parse("{ ... }"))
-        //         .thenApply(response -> {
-        //             return ...
-        //         });
+         return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
+                 .post(Json.parse("{" +
+                         "\"from\":" + (page-1) * size  + "," +
+                         "\"size\":" + size + "," +
+                         "\"query\": {" +
+                            "\"query_string\": {" +
+                                "\"query\":\"*" + input + "*\"," +
+                                "\"fields\": [" +
+                                    "\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\", \"description.keyword^3\", \"partners.keyword^2\"" +
+                                "]" +
+                            "}" +
+                         "}" +
+                     "}"))
+                 .thenApply(response -> {
+                     System.out.println(response.asJson());
+                     JsonNode resjson = response.asJson();
+                     int total = resjson.get("hits").get("total").get("value").asInt();
+                     JsonNode resHeroes = resjson.get("hits").get("hits");
+                     List<SearchedHero> heroes = new ArrayList<>();
+                     for(JsonNode hero: resHeroes){
+                        heroes.add(new SearchedHero(
+                                hero.get("_id").asText(),
+                                hero.get("_source").get("imageUrl").asText(),
+                                hero.get("_source").get("name").asText(),
+                                hero.get("_source").get("universe").asText(),
+                                hero.get("_source").get("gender").asText()
+                        ));
+                     }
+                     int totalPage = (int) Math.ceil((double)total/size);
+                     return new PaginatedResults<>(
+                             total,
+                             page,
+                             totalPage,
+                             heroes
+                     );
+                 });
     }
 
     public CompletionStage<List<SearchedHero>> suggest(String input) {
-        return CompletableFuture.completedFuture(Arrays.asList(SearchedHeroSamples.IronMan(), SearchedHeroSamples.MsMarvel(), SearchedHeroSamples.SpiderMan()));
-        // TODO
-        // return wsClient.url(elasticConfiguration.uri + "...")
-        //         .post(Json.parse("{ ... }"))
-        //         .thenApply(response -> {
-        //             return ...
-        //         });
+        int size = 5;
+        return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
+                .post(Json.parse("{" +
+                        "\"size\":" + size + "," +
+                        "\"query\": {" +
+                        "\"query_string\": {" +
+                        "\"query\":\"*" + input + "*\"," +
+                        "\"fields\": [" +
+                        "\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\"" +
+                        "]" +
+                        "}" +
+                        "}" +
+                        "}"))
+                .thenApply(response -> {
+                    System.out.println(response.asJson());
+                    JsonNode resjson = response.asJson();
+                    int total = resjson.get("hits").get("total").get("value").asInt();
+                    JsonNode resHeroes = resjson.get("hits").get("hits");
+                    List<SearchedHero> heroes = new ArrayList<>();
+                    for(JsonNode hero: resHeroes){
+                        heroes.add(new SearchedHero(
+                                hero.get("_id").asText(),
+                                hero.get("_source").get("imageUrl").asText(),
+                                hero.get("_source").get("name").asText(),
+                                hero.get("_source").get("universe").asText(),
+                                hero.get("_source").get("gender").asText()
+                        ));
+                    }
+                    int totalPage = (int) Math.ceil((double)total/size);
+                    return heroes;
+                });
     }
 }
