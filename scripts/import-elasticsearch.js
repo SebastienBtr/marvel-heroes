@@ -41,7 +41,6 @@ function importData() {
         'name': data.name,
         'description': data.description,
         'imageUrl': data.imageUrl,
-        'backgroundUrl': data.backgroundUrl,
         'secretIdentities': data.secretIdentities,
         'aliases': data.aliases,
         'partners': data.partners,
