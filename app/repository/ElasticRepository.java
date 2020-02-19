@@ -64,6 +64,40 @@ public class ElasticRepository {
                      );
                  });
     }
+    // Version without elasticsearch suggest
+//    public CompletionStage<List<SearchedHero>> suggest(String input) {
+//        int size = 5;
+//        return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
+//                .post(Json.parse("{" +
+//                        "\"size\":" + size + "," +
+//                        "\"query\": {" +
+//                        "\"query_string\": {" +
+//                        "\"query\":\"*" + input + "*\"," +
+//                        "\"fields\": [" +
+//                        "\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\"" +
+//                        "]" +
+//                        "}" +
+//                        "}" +
+//                        "}"))
+//                .thenApply(response -> {
+//                    System.out.println(response.asJson());
+//                    JsonNode resjson = response.asJson();
+//                    int total = resjson.get("hits").get("total").get("value").asInt();
+//                    JsonNode resHeroes = resjson.get("hits").get("hits");
+//                    List<SearchedHero> heroes = new ArrayList<>();
+//                    for(JsonNode hero: resHeroes){
+//                        heroes.add(new SearchedHero(
+//                                hero.get("_id").asText(),
+//                                hero.get("_source").get("imageUrl").asText(),
+//                                hero.get("_source").get("name").asText(),
+//                                hero.get("_source").get("universe").asText(),
+//                                hero.get("_source").get("gender").asText()
+//                        ));
+//                    }
+//                    int totalPage = (int) Math.ceil((double)total/size);
+//                    return heroes;
+//                });
+//    }
 
     public CompletionStage<List<SearchedHero>> suggest(String input) {
         int size = 5;

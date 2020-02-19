@@ -43,38 +43,38 @@ public class RedisRepository {
 
     private CompletionStage<Boolean> incrHeroInTops(StatItem statItem) {
         System.out.println("INCR HERO");
-
         StatefulRedisConnection<String, String> connection = redisClient.connect();
-        connection.sync().zincrby("topVisited", 1, statItem.toJson().toString());
-        connection.close();
-        return CompletableFuture.completedFuture(true);
+        return connection.async().zincrby("topVisited", 1, statItem.toJson().toString()).thenApply(res -> {
+            connection.close();
+            return !res.isNaN();
+        });
     }
-
 
     private CompletionStage<Long> addHeroAsLastVisited(StatItem statItem) {
         StatefulRedisConnection<String, String> connection = redisClient.connect();
-        connection.sync().zadd("lastVisited", new Timestamp(new Date().getTime()).getTime(), statItem.toJson().toString());
-        connection.close();
-        return CompletableFuture.completedFuture(1L);
+        return connection.async().zadd("lastVisited", new Timestamp(new Date().getTime()).getTime(), statItem.toJson().toString()).thenApply(res -> {
+            connection.close();
+            return res;
+        });
     }
 
     public CompletionStage<List<StatItem>> lastHeroesVisited(int count) {
         logger.info("Retrieved last heroes");
         StatefulRedisConnection<String, String> connection = redisClient.connect();
-        List<String> lastVisited = connection.sync().zrevrange("lastVisited", 0, count-1);
-        connection.close();
-        List<StatItem> lastsHeroes = lastVisited.stream().map(StatItem::fromJson).collect(Collectors.toList());
-        return CompletableFuture.completedFuture(lastsHeroes);
+        return connection.async().zrevrange("lastVisited", 0, count-1).thenApply(lastVisited -> {
+            connection.close();
+            return lastVisited.stream().map(StatItem::fromJson).collect(Collectors.toList());
+        });
     }
 
     public CompletionStage<List<TopStatItem>> topHeroesVisited(int count) {
         logger.info("Retrieved tops heroes");
         StatefulRedisConnection<String, String> connection = redisClient.connect();
-        List<ScoredValue<String>> topVisited = connection.sync().zrevrangeWithScores("topVisited", 0, count - 1);
-        connection.close();
-        List<TopStatItem> tops = topVisited.stream().map(tv -> {
-            return new TopStatItem(StatItem.fromJson(tv.getValue()), (long)tv.getScore());
-        }).collect(Collectors.toList());
-        return CompletableFuture.completedFuture(tops);
+        return connection.async().zrevrangeWithScores("topVisited", 0, count - 1).thenApply(topVisited -> {
+            connection.close();
+            return topVisited.stream().map(tv -> {
+                return new TopStatItem(StatItem.fromJson(tv.getValue()), (long)tv.getScore());
+            }).collect(Collectors.toList());
+        });
     }
 }
