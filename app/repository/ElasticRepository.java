@@ -82,7 +82,6 @@ public class ElasticRepository {
 //                .thenApply(response -> {
 //                    System.out.println(response.asJson());
 //                    JsonNode resjson = response.asJson();
-//                    int total = resjson.get("hits").get("total").get("value").asInt();
 //                    JsonNode resHeroes = resjson.get("hits").get("hits");
 //                    List<SearchedHero> heroes = new ArrayList<>();
 //                    for(JsonNode hero: resHeroes){
@@ -94,7 +93,6 @@ public class ElasticRepository {
 //                                hero.get("_source").get("gender").asText()
 //                        ));
 //                    }
-//                    int totalPage = (int) Math.ceil((double)total/size);
 //                    return heroes;
 //                });
 //    }
@@ -103,21 +101,19 @@ public class ElasticRepository {
         int size = 5;
         return wsClient.url(elasticConfiguration.uri + "/heroes/_search")
                 .post(Json.parse("{" +
-                        "\"size\":" + size + "," +
-                        "\"query\": {" +
-                        "\"query_string\": {" +
-                        "\"query\":\"*" + input + "*\"," +
-                        "\"fields\": [" +
-                        "\"name.keyword^5\", \"aliases.keyword^4\", \"secretIdentities.keyword^4\"" +
-                        "]" +
-                        "}" +
-                        "}" +
+                            "\"suggest\" : {" +
+                                "\"suggestion\" : {" +
+                                    "\"prefix\": \""+ input + "\"," +
+                                    "\"completion\": {" +
+                                        "\"field\": \"suggest\"," +
+                                        "\"size\":  5" +
+                                    "}" +
+                                "}" +
+                            "}"+
                         "}"))
                 .thenApply(response -> {
-                    System.out.println(response.asJson());
                     JsonNode resjson = response.asJson();
-                    int total = resjson.get("hits").get("total").get("value").asInt();
-                    JsonNode resHeroes = resjson.get("hits").get("hits");
+                    JsonNode resHeroes = resjson.get("suggest").get("suggestion").get(0).get("options");
                     List<SearchedHero> heroes = new ArrayList<>();
                     for(JsonNode hero: resHeroes){
                         heroes.add(new SearchedHero(
@@ -128,7 +124,6 @@ public class ElasticRepository {
                                 hero.get("_source").get("gender").asText()
                         ));
                     }
-                    int totalPage = (int) Math.ceil((double)total/size);
                     return heroes;
                 });
     }
