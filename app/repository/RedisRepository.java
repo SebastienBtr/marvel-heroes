@@ -42,21 +42,11 @@ public class RedisRepository {
     }
 
     private CompletionStage<Boolean> incrHeroInTops(StatItem statItem) {
-<<<<<<< HEAD
-        StatefulRedisConnection<String, String> connection = redisClient.connect();
-        int val = (int) connection.sync().get(statItem.slug);
-        connection.sync().set(statItem.slug, val++);
-        connection.close();
-        // TODO
-        //return CompletableFuture.completedFuture(true);
-=======
-        System.out.println("INCR HERO");
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         return connection.async().zincrby("topVisited", 1, statItem.toJson().toString()).thenApply(res -> {
             connection.close();
             return !res.isNaN();
         });
->>>>>>> 192ad43ac6d31dccfd79256e4b5e0e841c895ba5
     }
 
     private CompletionStage<Long> addHeroAsLastVisited(StatItem statItem) {
