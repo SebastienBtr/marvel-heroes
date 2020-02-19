@@ -35,8 +35,12 @@ public class RedisRepository {
     }
 
     private CompletionStage<Boolean> incrHeroInTops(StatItem statItem) {
+        StatefulRedisConnection<String, String> connection = redisClient.connect();
+        int val = (int) connection.sync().get(statItem.slug);
+        connection.sync().set(statItem.slug, val++);
+        connection.close();
         // TODO
-        return CompletableFuture.completedFuture(true);
+        //return CompletableFuture.completedFuture(true);
     }
 
 

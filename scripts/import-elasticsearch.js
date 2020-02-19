@@ -32,7 +32,21 @@ function importData() {
         'aliases': data.aliases,
         'partners': data.partners,
         'universe': data.universe,
-        'gender': data.gender
+        'gender': data.gender,
+        'suggest': [
+          {
+            "input": data.name,
+            "weight": 10
+          },
+          {
+            "input": data.aliases,
+            "weight": 5
+          },
+          {
+            "input": data.secretIdentities,
+            "weight": 5
+          },
+        ]
       });
     })
     .on('end', () => {
