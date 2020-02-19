@@ -7,7 +7,6 @@ import models.PaginatedResults;
 import models.SearchedHero;
 import play.libs.Json;
 import play.libs.ws.WSClient;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;

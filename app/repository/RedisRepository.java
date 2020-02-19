@@ -1,22 +1,15 @@
 package repository;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.lettuce.core.RedisClient;
-import io.lettuce.core.ScoredValue;
 import io.lettuce.core.api.StatefulRedisConnection;
 import models.StatItem;
 import models.TopStatItem;
 import play.Logger;
-import play.libs.Json;
-import utils.StatItemSamples;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 

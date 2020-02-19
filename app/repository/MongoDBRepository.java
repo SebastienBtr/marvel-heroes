@@ -10,7 +10,6 @@ import models.YearAndUniverseStat;
 import org.bson.Document;
 import play.libs.Json;
 import utils.ReactiveStreamsUtils;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
