@@ -8,8 +8,22 @@ const indexName = 'heroes'
 async function run() {
   // Create index
   await checkIndices();
-  // Import data
-  importData();
+  // Add mapping
+  const { body: res } = await client.indices.putMapping({
+    index: indexName,
+    body: {
+      properties: {
+        'suggest': {
+          "type": "completion"
+        }
+      }
+    }
+  });
+  if (res.errors) {
+    console.log(res.errors);
+  } else {
+    importData();
+  }
 }
 
 // Read the csv and import the data to elasticsearch
