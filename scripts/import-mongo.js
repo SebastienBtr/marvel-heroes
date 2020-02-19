@@ -53,12 +53,12 @@ function importData(client) {
           universe: data.universe
         },
         skills: {
-          intelligence: data.intelligence,
-          strength: data.strength,
-          speed: data.speed,
-          durability: data.durability,
-          combat: data.combat,
-          power: data.power
+          intelligence: parseInt(data.intelligence, 10),
+          strength: parseInt(data.strength, 10),
+          speed: parseInt(data.speed, 10),
+          durability: parseInt(data.durability, 10),
+          combat: parseInt(data.combat, 10),
+          power: parseInt(data.power, 10),
         }
       });
     })
