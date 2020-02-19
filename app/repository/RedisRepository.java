@@ -1,17 +1,24 @@
 package repository;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.lettuce.core.RedisClient;
+import io.lettuce.core.ScoredValue;
+import io.lettuce.core.api.StatefulRedisConnection;
 import models.StatItem;
 import models.TopStatItem;
 import play.Logger;
+import play.libs.Json;
 import utils.StatItemSamples;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 @Singleton
 public class RedisRepository {
@@ -35,31 +42,48 @@ public class RedisRepository {
     }
 
     private CompletionStage<Boolean> incrHeroInTops(StatItem statItem) {
+<<<<<<< HEAD
         StatefulRedisConnection<String, String> connection = redisClient.connect();
         int val = (int) connection.sync().get(statItem.slug);
         connection.sync().set(statItem.slug, val++);
         connection.close();
         // TODO
         //return CompletableFuture.completedFuture(true);
+=======
+        System.out.println("INCR HERO");
+        StatefulRedisConnection<String, String> connection = redisClient.connect();
+        return connection.async().zincrby("topVisited", 1, statItem.toJson().toString()).thenApply(res -> {
+            connection.close();
+            return !res.isNaN();
+        });
+>>>>>>> 192ad43ac6d31dccfd79256e4b5e0e841c895ba5
     }
 
-
     private CompletionStage<Long> addHeroAsLastVisited(StatItem statItem) {
-        // TODO
-        return CompletableFuture.completedFuture(1L);
+        StatefulRedisConnection<String, String> connection = redisClient.connect();
+        return connection.async().zadd("lastVisited", new Timestamp(new Date().getTime()).getTime(), statItem.toJson().toString()).thenApply(res -> {
+            connection.close();
+            return res;
+        });
     }
 
     public CompletionStage<List<StatItem>> lastHeroesVisited(int count) {
         logger.info("Retrieved last heroes");
-        // TODO
-        List<StatItem> lastsHeroes = Arrays.asList(StatItemSamples.IronMan(), StatItemSamples.Thor(), StatItemSamples.CaptainAmerica(), StatItemSamples.BlackWidow(), StatItemSamples.MsMarvel());
-        return CompletableFuture.completedFuture(lastsHeroes);
+        StatefulRedisConnection<String, String> connection = redisClient.connect();
+        return connection.async().zrevrange("lastVisited", 0, count-1).thenApply(lastVisited -> {
+            connection.close();
+            return lastVisited.stream().map(StatItem::fromJson).collect(Collectors.toList());
+        });
     }
 
     public CompletionStage<List<TopStatItem>> topHeroesVisited(int count) {
         logger.info("Retrieved tops heroes");
-        // TODO
-        List<TopStatItem> tops = Arrays.asList(new TopStatItem(StatItemSamples.MsMarvel(), 8L), new TopStatItem(StatItemSamples.Starlord(), 6L), new TopStatItem(StatItemSamples.SpiderMan(), 5L), new TopStatItem(StatItemSamples.BlackPanther(), 5L), new TopStatItem(StatItemSamples.Thanos(), 4L));
-        return CompletableFuture.completedFuture(tops);
+        StatefulRedisConnection<String, String> connection = redisClient.connect();
+        return connection.async().zrevrangeWithScores("topVisited", 0, count - 1).thenApply(topVisited -> {
+            connection.close();
+            return topVisited.stream().map(tv -> {
+                return new TopStatItem(StatItem.fromJson(tv.getValue()), (long)tv.getScore());
+            }).collect(Collectors.toList());
+        });
     }
 }
