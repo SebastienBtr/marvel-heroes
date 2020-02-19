@@ -29,10 +29,10 @@ function importData(client) {
         backgroundImageUrl: data.backgroundImageUrl,
         externalLink: data.externalLink,
         description: data.description,
-        teams: createList(data, 'teams'),
-        powers: createList(data, 'powers'),
-        partners: createList(data, 'partners'),
-        creators: createList(data, 'creators'),
+        teams: createList(data.teams),
+        powers: createList(data.powers),
+        partners: createList(data.partners),
+        creators: createList(data.creators),
         appearance: {
           gender: data.gender,
           type: data.type,
@@ -43,22 +43,22 @@ function importData(client) {
           hairColor: data.hairColor
         },
         identity: {
-          secretIdentities: createList(data, 'secretIdentities'),
+          secretIdentities: createList(data.secretIdentities),
           birthPlace: data.birthPlace,
           occupation: data.occupation,
-          aliases: createList(data, 'aliases'),
+          aliases: createList(data.aliases),
           alignment: data.alignment,
           firstAppearance: data.firstAppearance,
           yearAppearance: data.yearAppearance,
           universe: data.universe
         },
         skills: {
-          intelligence: parseInt(data.intelligence, 10),
-          strength: parseInt(data.strength, 10),
-          speed: parseInt(data.speed, 10),
-          durability: parseInt(data.durability, 10),
-          combat: parseInt(data.combat, 10),
-          power: parseInt(data.power, 10),
+          intelligence: getIntValue(data.intelligence),
+          strength: getIntValue(data.strength),
+          speed: getIntValue(data.speed),
+          durability: getIntValue(data.durability),
+          combat: getIntValue(data.combat),
+          power: getIntValue(data.power),
         }
       });
     })
@@ -73,8 +73,12 @@ function importData(client) {
     });
 }
 
-function createList(data, key) {
-  return data[key].length ? data[key].split(',') : [];
+function createList(value) {
+  return value.length ? value.split(',') : [];
+}
+
+function getIntValue(value) {
+  return value != '' ? parseInt(value, 10) : 0;
 }
 
 // Send the data to mongo db
